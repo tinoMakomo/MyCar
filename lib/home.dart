@@ -14,6 +14,8 @@ class HomePageState extends State<HomePage> {
   var ignition;
   var dl;
   var el;
+  bool signedIn = false;
+  String userid = "";
   var overlayLoader;
   showLoader(BuildContext context) async {
     OverlayState? overlayState = Overlay.of(context);
@@ -49,8 +51,20 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  getId() async {
+    if (await FirebaseAuth.instance.currentUser != null) {
+      print('signed in');
+      setState(() {
+        signedIn = true;
+        userid = FirebaseAuth.instance.currentUser!.uid;
+      });
+    }
+    print(userid);
+  }
+
   @override
   void initState() {
+    getId();
     checkButtons();
     super.initState();
   }
@@ -146,7 +160,7 @@ class HomePageState extends State<HomePage> {
                           ),
                         )),
 
-                        SizedBox(
+                        const SizedBox(
                           width: 15,
                         ),
                         GestureDetector(
@@ -182,7 +196,7 @@ class HomePageState extends State<HomePage> {
                       ],
 
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Row(
@@ -221,7 +235,7 @@ class HomePageState extends State<HomePage> {
                               ),
                             )),
 
-                        SizedBox(
+                        const SizedBox(
                           width: 15,
                         ),
                         GestureDetector(
