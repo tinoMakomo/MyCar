@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:untitled/home.dart';
 
 
@@ -27,10 +28,8 @@ class loginPageState extends State<loginPage> {
 
   dismissLoader() {
     try {
-      setState(() {
-        isLoading = false;
-      });
       overlayLoader.remove();
+      print('loader removed');
     } catch (ex) {}
   }
 
@@ -73,9 +72,8 @@ class loginPageState extends State<loginPage> {
     return WillPopScope(
         onWillPop: _willPopCallback,
         child: Scaffold(
-            backgroundColor: Colors.white.withOpacity(0.9),
+            backgroundColor: Colors.white.withOpacity(0.95),
             body: Form(
-                // autovalidateMode: _autoValidate,
                 key: _formKeyLogin,
                 child: Center(
                   child: SingleChildScrollView(
@@ -85,12 +83,9 @@ class loginPageState extends State<loginPage> {
                             decoration: const BoxDecoration(
                               color: Colors.transparent,
                             ),
+                            child: Image.asset('assets/images/logg1.png'),
                             height: MediaQuery.of(context).size.height * 0.27,
                             width: MediaQuery.of(context).size.width * 0.55,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.height * 0.06,
                           ),
                           SizedBox(
                             height: MediaQuery.of(context).size.height * 0.06,
@@ -100,7 +95,7 @@ class loginPageState extends State<loginPage> {
                             children: <Widget>[
                               Icon(
                                 Icons.perm_identity,
-                                color: Colors.indigo[900],
+                                color: Colors.pink[800],
                               ),
                               const SizedBox(
                                 width: 10,
@@ -126,7 +121,7 @@ class loginPageState extends State<loginPage> {
                                         borderSide: const BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(5),
                                       ),
-                                      hintText: "Username",
+                                      hintText: "Email",
                                       hintStyle: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 11,
@@ -143,7 +138,7 @@ class loginPageState extends State<loginPage> {
                             children: <Widget>[
                               Icon(
                                 Icons.lock,
-                                color: Colors.indigo[900],
+                                color: Colors.pink[800],
                               ),
                               const SizedBox(
                                 width: 10,
@@ -166,7 +161,7 @@ class loginPageState extends State<loginPage> {
                                         borderSide: const BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(5),
                                       ),
-                                      hintText: "password",
+                                      hintText: "Password",
                                       hintStyle: const TextStyle(
                                           color: Colors.black,
                                           fontSize: 11,
@@ -176,28 +171,25 @@ class loginPageState extends State<loginPage> {
                             ],
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.07,
+                            height: 40,
                           ),
-                          SizedBox(
+                          Container(
+                              color: Colors.pink[800],
                               width: MediaQuery.of(context).size.width * 0.73,
                               height:40,
-                              child: FlatButton(
-                                  color: Colors.indigo[900],
-                                  onPressed: signIn,
-                                  child: const Text(
-                                    'Login',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(1.0),
-                                      side:
-                                      const BorderSide(color: Colors.transparent)))),
+                              child: TextButton(
+                                onPressed: signIn,
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                  textAlign: TextAlign.left,
+                                ),
+                              )),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.06,
+                            height: 20,
                           ),
-                          FlatButton(
+                          TextButton(
                             onPressed: () {
                               showDialog(context: context,
                                   builder: (BuildContext context){
@@ -232,31 +224,17 @@ class loginPageState extends State<loginPage> {
                                     );
                                   }
                               );
-
-
                             },
                             child: Text(
                               'Forgot Password',
                               style: TextStyle(
-                                color: Colors.indigo[900],
-                                fontSize: 11,
+                                color: Colors.pink[800],
+                                fontSize: 12,
                               ),
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.01,
-                          ),
-                          TextButton(
-                            onPressed: () {
-
-                            },
-                            child: Text(
-                              'Create Account',
-                              style: TextStyle(
-                                color: Colors.indigo[900],
-                                fontSize: 11,
-                              ),
-                            ),
+                            height:2,
                           ),
                         ],
                       )),
@@ -264,40 +242,34 @@ class loginPageState extends State<loginPage> {
   }
 
   signIn() async {
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (BuildContext context) => HomePage()));
     if (_controller2.text != '' && _controller.text != '') {
       try {
+        showLoader(context);
         setState(() {
           isLoading = true;
         });
 
-        showLoader(context);
         await auth.signInWithEmailAndPassword(
-            email: _controller2.text.split(" ").join("") + '@vorbis.com',
+            email: _controller2.text,
             password: _controller.text);
 
         dismissLoader();
         _formKeyLogin.currentState?.reset();
-        //await Navigator.of(context)
-            //.pushNamedAndRemoveUntil('/four', (Route<dynamic> route) => false);
+        Fluttertoast.showToast(
+            msg: "Successfully logged in.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black54,
+            textColor: Colors.white,
+            fontSize: 16.0
+        );
+        Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) => HomePage()));
       } catch (e) {
+        print(e.toString());
         dismissLoader();
-        if (e.toString() ==
-            'PlatformException(ERROR_WRONG_PASSWORD, The password is invalid or the user does not have a password., null)') {
-          error = 'Wrong password';
-        } else if (e.toString() ==
-            'PlatformException(ERROR_USER_NOT_FOUND, There is no user record corresponding to this identifier. The user may have been deleted., null)') {
-          error = 'Account does not exist';
-        }  else if (e.toString() ==
-            'PlatformException(ERROR_INVALID_EMAIL, The email address is badly formatted., null)') {
-          error = 'Username incorrect';
-        }
-
-
-        else {
-          error = 'No internet Connection';
-        }
+        dismissLoader();
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -305,7 +277,7 @@ class loginPageState extends State<loginPage> {
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20.0))),
                 //title: Icon(Icons.warning),
-                content: Text(error),
+                content: Text(e.toString()),
                 actions: <Widget>[
                   TextButton(
                       onPressed: () {
@@ -317,7 +289,15 @@ class loginPageState extends State<loginPage> {
             });
       }
     } else {
-     // fill in required details error
+      Fluttertoast.showToast(
+          msg: "Please fill in all the details.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black54,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     }
   }
 }
